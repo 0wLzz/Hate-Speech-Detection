@@ -29,6 +29,9 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+if 'active_page' not in st.session_state:   #Changes
+    st.session_state.active_page = "Home"   #Changes
+
 @st.cache_data
 def load_data():
     dataset = pd.read_csv("https://raw.githubusercontent.com/ghazimuharam/nlp-hoax-recognition/master/Data%20Latih/Data%20Latih%20BDC.csv")
@@ -64,23 +67,29 @@ def local_css(file_name):
 local_css("style.css")
 
 page = option_menu(
-    default_index=3,
     menu_title=None,
-    options=["Home", "EDA", "Stacking & Voting Model", "Model Training & Evaluation"],
-    icons=["house", "bar-chart", "diagram-3", "robot"],
+    options=page_options_list,
+    icons=page_icons_list,
     menu_icon="cast",
+    default_index=0,
     orientation="horizontal",
     styles={
         "container": {"padding": "0!important", "background-color": "#f8f9fa"},
-        "icon": {"color": "#4b6cb7", "font-size": "14px"}, 
+        "icon": {"color": "#4b6cb7", "font-size": "14px"},
         "nav-link": {"font-size": "14px", "text-align": "left", "margin":"0px", "--hover-color": "#e9ecef"},
         "nav-link-selected": {"background-color": "#4b6cb7"},
     }
 )
 
+if selected_page_by_menu != st.session_state.active_page:
+    st.session_state.active_page = selected_page_by_menu
+    st.rerun()
+
+# changes   ^
+
 ##################################################################################################################################################
-if page == "Home":
-    st.markdown('<h1 class="header-text">🕵️ Hoax Detection App</h1>', unsafe_allow_html=True)
+if st.session_state.active_page == "Home":
+    st.markdown('<h1 class="header-text">🕵️ Hoax Detection Application</h1>', unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns([1,2,1])
     with col2:
@@ -119,23 +128,34 @@ if page == "Home":
     </div>
     """, unsafe_allow_html=True)
     
-    cols = st.columns(4)
-    features = [
-        {"icon": "📊", "title": "EDA", "desc": "Explore the dataset with interactive visualizations"},
-        {"icon": "🧩", "title": "Stacking & Voting", "desc": "Learn about ensemble techniques"},
-        {"icon": "🤖", "title": "Model Training", "desc": "Train and evaluate ML models"},
-        {"icon": "📈", "title": "Performance", "desc": "Compare model metrics"}
+    st.markdown("<h3 style='color: #2c3e50; margin-top: 2rem; margin-bottom: 1rem; text-align:center;'>Navigate to Key Sections</h3>", unsafe_allow_html=True)
+    
+    home_feature_cards = [
+        {"icon": "📊", "title": "EDA", "desc": "Explore the dataset with interactive visualizations", "target_page": "EDA"},
+        {"icon": "🧩", "title": "Stacking & Voting", "desc": "Learn about ensemble techniques", "target_page": "Stacking & Voting Model"},
+        {"icon": "🤖", "title": "Model Training", "desc": "Train and evaluate ML models", "target_page": "Model Training & Evaluation"},
+        {"icon": "📈", "title": "Performance", "desc": "Compare model metrics", "target_page": "Model Training & Evaluation"} # Assuming Performance metrics are in Model Training & Evaluation
     ]
     
-    for i, feature in enumerate(features):
-        with cols[i]:
+    card_cols = st.columns(len(home_feature_cards))
+    
+    for i, card_item in enumerate(home_feature_cards):
+        with card_cols[i]:
+            # Display the card visual using your HTML structure (from your "feature-card" class)
+            # Adding some inline styles for centering and min-height for consistency.
+            # Ensure your style.css for "feature-card" provides good card styling.
             st.markdown(f"""
-            <div class="feature-card">
-                <div style='font-size: 1.5rem; margin-bottom: 0.5rem;'>{feature['icon']}</div>
-                <h4 style='margin: 0; color: #2c3e50;'>{feature['title']}</h4>
-                <p style='font-size: 0.8rem; margin: 0.5rem 0 0; color: #7f8c8d;'>{feature['desc']}</p>
+            <div class="feature-card" style="padding: 15px; margin-bottom: 10px; text-align: center;">
+                <div style='font-size: 2rem; margin-bottom: 0.5rem;'>{card_item['icon']}</div>
+                <h4 style='margin: 0.5rem 0; color: #2c3e50;'>{card_item['title']}</h4>
+                <p style='font-size: 0.85rem; color: #7f8c8d; min-height: 70px; margin-top: 0.5rem; margin-bottom:1rem;'>{card_item['desc']}</p>
             </div>
             """, unsafe_allow_html=True)
+
+            # Add a button for navigation within the same column, associated with the card
+            if st.button(f"Go to {card_item['title']}", key=f"home_card_btn_{card_item['title']}", use_container_width=True):
+                st.session_state.active_page = card_item['target_page']
+                st.rerun()
     
     # How to use section
     with st.container():
@@ -160,9 +180,10 @@ if page == "Home":
     """, unsafe_allow_html=True)
 
 ##################################################################################################################################################
-elif page == "EDA":
+elif st.session_state.active_page == "EDA":
     # Dataset Explanation Page
     st.markdown('<h1 class="header-text">📊 Dataset Explanation & EDA</h1>', unsafe_allow_html=True)
+    st.markdown('')
     
     with st.container():
         col1, col2 = st.columns(2)
@@ -309,10 +330,11 @@ elif page == "EDA":
             st.code(step['code'], language='python')
     
 ##################################################################################################################################################
-elif page == "Stacking & Voting Model":
+elif st.session_state.active_page == "Stacking & Voting Model":
     # Stacking & Voting Explanation Page
     st.markdown('<h1 class="header-text">⚙️ Stacking & Voting Explanation</h1>', unsafe_allow_html=True)
-    
+    st.markdown('')
+
     with st.container():
         st.markdown("""
         <div class="card">
@@ -384,20 +406,30 @@ elif page == "Stacking & Voting Model":
         """, unsafe_allow_html=True)
 
 ##################################################################################################################################################
-elif page == "Model Training & Evaluation":
+elif st.session_state.active_page == "Model Training & Evaluation":
     # Page Header
-    st.html("""
-            <h1 class="header-text">🧠 Model Training & Evaluation</h1> 
-            <div class="card" style="padding: 20px; border-radius: 10px; background-color: #f8f9fa; border: 1px solid #ddd;">
-                <h3 style="color: #2c3e50;">Try to Build Your Own Model</h3>
-                <p style="color: #34495e;">
-                    Explore how different base models perform together! Select multiple algorithms, choose a voting strategy (hard or soft), and compare their combined performance. 
-                    This tool helps you understand ensemble learning by letting you experiment interactively.
-                </p>
-            </div>
-            """
-        )
-    
+    st.markdown('<h1 class="header-text">🧠 Model Training & Evaluation</h1>', unsafe_allow_html=True)
+
+    with st.container():
+        st.markdown("""
+        <div class="card">
+            <h3 style='color: #2c3e50;'>Build Your Ensemble Model</h3>
+            <p>Select base models and voting strategy to evaluate performance.</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Select models and voting strategy
+    st.markdown("<h3 style='color: #2c3e50;'>Model Configuration</h3>", unsafe_allow_html=True)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        selected_models = st.multiselect("Select Base Models", options=list(models.keys()), help="Choose at least two models")
+    with col2:
+        voting_strategy = st.selectbox("Voting Strategy", options=["soft", "hard"], help="Soft uses predicted probabilities")
+
+    # Name for model combo (so user can select different trained stacks later)
+    model_name = "_".join(selected_models)
+
     # Store all trained models in session
     if "trained_stacks" not in st.session_state:
         st.session_state.trained_stacks = {}
