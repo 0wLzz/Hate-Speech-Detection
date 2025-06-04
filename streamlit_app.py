@@ -29,8 +29,8 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-if 'active_page' not in st.session_state:   #Changes
-    st.session_state.active_page = "Home"   #Changes
+if 'active_page' not in st.session_state: 
+    st.session_state.active_page = "Home"  
 
 @st.cache_data
 def load_data():
@@ -66,12 +66,20 @@ def local_css(file_name):
 
 local_css("style.css")
 
-page = option_menu(
+page_options_list = ["Home", "EDA", "Stacking & Voting Model", "Model Training & Evaluation"]
+page_icons_list = ["house", "bar-chart", "diagram-3", "robot"]
+
+try:
+    current_default_index = page_options_list.index(st.session_state.active_page)
+except ValueError:
+    current_default_index = 0
+
+selected_page_by_menu = option_menu(
     menu_title=None,
     options=page_options_list,
     icons=page_icons_list,
     menu_icon="cast",
-    default_index=0,
+    default_index=current_default_index,
     orientation="horizontal",
     styles={
         "container": {"padding": "0!important", "background-color": "#f8f9fa"},
@@ -84,8 +92,6 @@ page = option_menu(
 if selected_page_by_menu != st.session_state.active_page:
     st.session_state.active_page = selected_page_by_menu
     st.rerun()
-
-# changes   ^
 
 ##################################################################################################################################################
 if st.session_state.active_page == "Home":
