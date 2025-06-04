@@ -3,9 +3,10 @@ import pandas as pd
 import streamlit as st
 from streamlit_option_menu import option_menu
 import matplotlib.pyplot as plt
+import time
 
 # CPU Based Models
-from sklearn.ensemble import StackingClassifier, ExtraTreesClassifier, RandomForestClassifier
+from sklearn.ensemble import StackingClassifier, ExtraTreesClassifier, RandomForestClassifier, VotingClassifier
 from sklearn.linear_model import LogisticRegression, RidgeClassifier, PassiveAggressiveClassifier
 from sklearn.svm import SVC
 from sklearn.naive_bayes import BernoulliNB
@@ -41,11 +42,12 @@ vectorizer = TfidfVectorizer()
 x_vect = vectorizer.fit_transform(clean_dataset['text'])
 x_train, x_test, y_train, y_test = train_test_split(x_vect, clean_dataset['label'], test_size=0.2, stratify=clean_dataset['label'], random_state=0)
 x_train_resampled, y_train_resampled = smote.fit_resample(x_train, y_train)
+# x_train_resampled = x_train_resampled.toarray()
 
 models = {
     'Decision Tree': DecisionTreeClassifier(max_depth=20, random_state=42),
     'Random Forest': RandomForestClassifier(max_depth=20, n_estimators=100),
-    'SVC': SVC(C=10, kernel='rbf', probability=True),
+    'SVC': SVC(C=10, kernel='rbf'),
     'Extra Trees': ExtraTreesClassifier(n_estimators=100),
     'XGBoost': XGBClassifier(use_label_encoder=False, eval_metric='logloss'),
     'BernoulliNB': BernoulliNB(alpha=1e-9),
@@ -62,11 +64,11 @@ def local_css(file_name):
 local_css("style.css")
 
 page = option_menu(
+    default_index=3,
     menu_title=None,
     options=["Home", "EDA", "Stacking & Voting Model", "Model Training & Evaluation"],
     icons=["house", "bar-chart", "diagram-3", "robot"],
     menu_icon="cast",
-    default_index=0,
     orientation="horizontal",
     styles={
         "container": {"padding": "0!important", "background-color": "#f8f9fa"},
@@ -85,7 +87,7 @@ if page == "Home":
         st.image("https://miro.medium.com/v2/resize:fit:735/1*vNwJyRGHG-MyeYcCnuzXew.png", 
                 width=500, 
                 caption="Fake News Meme",
-                use_column_width='auto')
+                use_container_width=True)
     
     with st.container():
         st.markdown("""
@@ -384,76 +386,91 @@ elif page == "Stacking & Voting Model":
 ##################################################################################################################################################
 elif page == "Model Training & Evaluation":
     # Page Header
-    st.markdown('<h1 class="header-text">🧠 Model Training & Evaluation</h1>', unsafe_allow_html=True)
-
-    with st.container():
-        st.markdown("""
-        <div class="card">
-            <h3 style='color: #2c3e50;'>Build Your Ensemble Model</h3>
-            <p>Select base models and voting strategy to evaluate performance.</p>
-        </div>
-        """, unsafe_allow_html=True)
-
-    # Select models and voting strategy
-    st.markdown("<h3 style='color: #2c3e50;'>Model Configuration</h3>", unsafe_allow_html=True)
-
-    col1, col2 = st.columns(2)
-    with col1:
-        selected_models = st.multiselect("Select Base Models", options=list(models.keys()), help="Choose at least two models")
-    with col2:
-        voting_strategy = st.selectbox("Voting Strategy", options=["soft", "hard"], help="Soft uses predicted probabilities")
-
-    # Name for model combo (so user can select different trained stacks later)
-    model_name = "_".join(selected_models)
-
+    st.html("""
+            <h1 class="header-text">🧠 Model Training & Evaluation</h1> 
+            <div class="card" style="padding: 20px; border-radius: 10px; background-color: #f8f9fa; border: 1px solid #ddd;">
+                <h3 style="color: #2c3e50;">Try to Build Your Own Model</h3>
+                <p style="color: #34495e;">
+                    Explore how different base models perform together! Select multiple algorithms, choose a voting strategy (hard or soft), and compare their combined performance. 
+                    This tool helps you understand ensemble learning by letting you experiment interactively.
+                </p>
+            </div>
+            """
+        )
+    
     # Store all trained models in session
     if "trained_stacks" not in st.session_state:
         st.session_state.trained_stacks = {}
 
+    num_stacks = st.slider(
+        label="How Many Stacks Do you want to make? (Odd Number)", 
+        step=2,
+        min_value = 1,
+        max_value = 9)
+    
+    st.markdown("<div style='text-align: center;' class='header-text'> Configure your Stack Models </div>", unsafe_allow_html=True) 
+    col1, col2 = st.columns(2)
+
+    with col1:
+        with st.container(height=500, border=False):
+            for num in range(num_stacks):
+                st.header(f"Stack Model {num + 1}")
+                st.multiselect(f"Select Meta Learners", models.keys(), key=f"stack{num}")
+
+    with col2:
+        st.header("Base Learner")
+        st.multiselect(f"Select Base Learners", models.keys(), key="base_learner")
+        st.header("Voting Strategy")
+        vote_strategy = st.selectbox(
+            label="Please choose your voting strategy!",
+            options = ['Hard', 'Soft'],
+            format_func = lambda x : x + "Voting",
+            help = 'Hard Voting is Majority Classification, Soft combines the Probabilities',
+            label_visibility='visible')
+    
+    def train_stack_model(stacks, base):
+        base_estimators = [(name, models[name]) for name in stacks]
+        final_estimator = models[base[0]]
+
+        stack_model = StackingClassifier(
+            estimators=base_estimators,
+            final_estimator=final_estimator,
+            n_jobs=-1
+        )
+
+        stack_model.fit(x_train_resampled, y_train_resampled)
+
+        return stack_model
+
     # Train the model
-    if len(selected_models) >= 2:
-        if st.button("🚀 Train Stacking Model"):
-            with st.spinner("Training the stacking model..."):
-                base_estimators = [(name, models[name]) for name in selected_models if name != 'Logistic Regression']
-                final_estimator = models["Logistic Regression"]
+    if st.button("Train All Stacks", use_container_width=True, type='primary'):
+        progress_bar = st.progress(0, text='Trainning Stack Model(s) in Progress')
+        for i in range(num_stacks):
+            current_stack_selections = st.session_state.get(f"stack{i}", [])
+            base_learner = st.session_state.get('base_learner', '')
 
-                stack_model = StackingClassifier(
-                    estimators=base_estimators,
-                    final_estimator=final_estimator,
-                    voting=voting_strategy,
-                    n_jobs=-1
-                )
-                stack_model.fit(x_train_resampled, y_train_resampled)
-                st.session_state.trained_stacks[model_name] = {
-                    "model": stack_model,
-                    "selected_models": selected_models,
-                    "voting": voting_strategy
-                }
-            st.success(f"✅ '{model_name}' trained with '{voting_strategy}' voting!")
+            if current_stack_selections and base_learner:                
+                time.sleep(0.2)
 
-    # Choose trained model to evaluate
-    if st.session_state.trained_stacks:
-        st.markdown("### 🔄 Evaluate a Trained Stacking Model")
-        chosen_stack = st.selectbox("Select a trained model", options=list(st.session_state.trained_stacks.keys()))
-        chosen_voting = st.radio("Voting type to apply", options=["soft", "hard"], index=0)
+                st.markdown(f"Training Stack {i+1} with models: {', '.join(current_stack_selections)}")
+                trained_model = train_stack_model(current_stack_selections, base_learner)
+                st.session_state.trained_stacks[f"stack_model_{i+1}"] = trained_model
 
-        stored = st.session_state.trained_stacks[chosen_stack]
+                st.success(f"✅ Stack{i + 1} trained")   
+                progress_bar.progress((i + 1) / num_stacks)
+            else:
+                st.warning(f"No models selected for Stack {i+1}. Please Input the Models")
+                break
+        
+        stack_models = list(st.session_state.trained_stacks.items())
+        if len(stack_models) > 2:
+            st.subheader("Training Final Voting Classifier...")
 
-        if stored["voting"] != chosen_voting:
-            st.info("⚙️ Retraining with new voting strategy...")
-            base_estimators = [(name, models[name]) for name in stored["selected_models"] if name != 'Logistic Regression']
-            final_estimator = models["Logistic Regression"]
-            stack_model = StackingClassifier(
-                estimators=base_estimators,
-                final_estimator=final_estimator,
-                voting=chosen_voting,
-                n_jobs=-1
-            )
-            stack_model.fit(x_train_resampled, y_train_resampled)
+            voting_ensemble = VotingClassifier(estimators=stack_models, voting=vote_strategy.lower(), n_jobs=-1)
+            voting_ensemble.fit(x_train_resampled, y_train_resampled)
+            y_pred = voting_ensemble.predict(x_test)
         else:
-            stack_model = stored["model"]
-
-        y_pred = stack_model.predict(x_test)
+            y_pred = stack_models["stack_model_1"].predict()
 
         # Confusion Matrix
         st.markdown("#### 📊 Confusion Matrix")
@@ -474,5 +491,3 @@ elif page == "Model Training & Evaluation":
             st.metric("Precision (Hoax)", f"{report['1']['precision']:.4f}")
         with col3:
             st.metric("Recall (Hoax)", f"{report['1']['recall']:.4f}")
-    else:
-        st.info("⚠️ No stacking model trained yet. Train one to evaluate.")

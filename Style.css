@@ -1,91 +1,96 @@
 [data-testid="stAppViewContainer"] {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 .header-text {
-    font-size: 2.5rem !important;
-    font-weight: 700 !important;
-    color: #2c3e50 !important;
-    text-align: center;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    background: rgba(255,255,255,0.8);
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  font-size: 2.5rem !important;
+  font-weight: 700 !important;
+  color: #2c3e50 !important;
+  text-align: center;
+  /* padding: 1rem; */
+  margin-bottom: 1rem;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 .card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    margin-bottom: 1rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1rem;
 }
 .feature-card {
-    background: white;
-    padding: 1rem;
-    border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    margin-bottom: 1rem;
-    border-left: 4px solid #4b6cb7;
-    transition: transform 0.3s;
+  background: white;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1rem;
+  border-left: 4px solid #4b6cb7;
+  transition: transform 0.3s;
 }
 .feature-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
 }
 .quote {
-    font-style: italic;
-    font-size: 1.1rem;
-    color: #4b6cb7;
-    text-align: center;
-    padding: 1rem;
-    margin: 1.5rem 0;
-    border-left: 3px solid #4b6cb7;
-    background: rgba(75, 108, 183, 0.1);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: #4b6cb7;
+  text-align: center;
+  padding: 1rem;
+  margin: 1.5rem 0;
+  border-left: 3px solid #4b6cb7;
+  background: rgba(75, 108, 183, 0.1);
 }
 
 div[role="radiogroup"] > label {
-    background: #f0f2f6 !important;
-    padding: 0.5rem 1rem !important;
-    border-radius: 8px !important;
-    margin-right: 0.5rem !important;
+  background: #f0f2f6 !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 8px !important;
+  margin-right: 0.5rem !important;
 }
 div[role="radiogroup"] > label[data-baseweb="radio"]:first-of-type {
-    border-top-right-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
 }
 div[role="radiogroup"] > label[data-baseweb="radio"]:last-of-type {
-    border-top-left-radius: 0 !important;
-    border-bottom-left-radius: 0 !important;
-    margin-right: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  margin-right: 0 !important;
 }
-div[role="radiogroup"] > label[data-baseweb="radio"]:has(> div:first-child[data-testid="stMarkdownContainer"]:has(> div > p:contains("Raw"))) {
-    border-right: 1px solid #ddd !important;
+div[role="radiogroup"]
+  > label[data-baseweb="radio"]:has(
+    > div:first-child[data-testid="stMarkdownContainer"]:has(
+        > div > p:contains("Raw")
+      )
+  ) {
+  border-right: 1px solid #ddd !important;
 }
 div[role="radiogroup"] > label[aria-checked="true"] {
-    background: #4b6cb7 !important;
-    color: white !important;
-    font-weight: 500 !important;
+  background: #4b6cb7 !important;
+  color: white !important;
+  font-weight: 500 !important;
 }
 
 div[data-testid="stExpander"] {
-    background: white;
-    border-radius: 8px !important;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
-    margin-bottom: 0.75rem !important;
-    border: 1px solid #e0e0e0 !important;
+  background: white;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+  margin-bottom: 0.75rem !important;
+  border: 1px solid #e0e0e0 !important;
 }
 div[data-testid="stExpander"]:hover {
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
-    border-color: #4b6cb7 !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1) !important;
+  border-color: #4b6cb7 !important;
 }
 div[data-testid="stExpander"] div[role="button"] p {
-    font-weight: 600 !important;
-    color: #2c3e50 !important;
-    font-size: 1rem !important;
+  font-weight: 600 !important;
+  color: #2c3e50 !important;
+  font-size: 1rem !important;
 }
 div[data-testid="stExpander"] div[role="button"] svg {
-    color: #4b6cb7 !important;
+  color: #4b6cb7 !important;
 }
 div[data-testid="stExpander"] div[data-testid="stVerticalBlock"] {
-    gap: 0.5rem !important;
+  gap: 0.5rem !important;
 }
