@@ -78,7 +78,7 @@ page = option_menu(
 
 ##################################################################################################################################################
 if page == "Home":
-    st.markdown('<h1 class="header-text">🕵️ Hoax Detection App</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="header-text">🕵️ Hoax Detection Application</h1>', unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns([1,2,1])
     with col2:
