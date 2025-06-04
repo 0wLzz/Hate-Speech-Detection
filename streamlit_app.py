@@ -161,6 +161,7 @@ if page == "Home":
 elif page == "EDA":
     # Dataset Explanation Page
     st.markdown('<h1 class="header-text">📊 Dataset Explanation & EDA</h1>', unsafe_allow_html=True)
+    st.markdown('')
     
     with st.container():
         col1, col2 = st.columns(2)
@@ -310,7 +311,8 @@ elif page == "EDA":
 elif page == "Stacking & Voting Model":
     # Stacking & Voting Explanation Page
     st.markdown('<h1 class="header-text">⚙️ Stacking & Voting Explanation</h1>', unsafe_allow_html=True)
-    
+    st.markdown('')
+
     with st.container():
         st.markdown("""
         <div class="card">
@@ -385,6 +387,7 @@ elif page == "Stacking & Voting Model":
 elif page == "Model Training & Evaluation":
     # Page Header
     st.markdown('<h1 class="header-text">🧠 Model Training & Evaluation</h1>', unsafe_allow_html=True)
+    st.markdown('')
 
     with st.container():
         st.markdown("""
