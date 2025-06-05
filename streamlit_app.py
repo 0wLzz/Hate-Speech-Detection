@@ -404,7 +404,7 @@ elif st.session_state.active_page == "Stacking & Voting Model":
 
         st.markdown("""
         <div class="card">
-            <h3 style='color: #2c3e50;'>How Stacking Works</h3>
+            <h3 style='color: #2c3e50;'>How Voting Works</h3>
             <div style='text-align: center; margin: 1rem 0;'>
                 <img src='https://miro.medium.com/v2/resize:fit:1400/1*djKLooxyOLvr98oMi5uwgA.jpeg' style='max-width: 100%; border-radius: 8px; ' alt='Stacking diagram'>
             </div>
