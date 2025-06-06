@@ -1,6 +1,6 @@
 import time
 import pickle
-
+import os
 import pandas as pd
 import streamlit as st
 
@@ -27,7 +27,26 @@ st.set_page_config(
 )
 
 if 'active_page' not in st.session_state: 
-    st.session_state.active_page = "Home"  
+    st.session_state.active_page = "Home"
+if "trained_stacks" not in st.session_state:
+    st.session_state.trained_stacks = {}
+
+
+def load_initial_model():
+    model_path = "voting_classifier.pkl"
+    if os.path.exists(model_path):
+        try:
+            with open(model_path, 'rb') as f:
+                pretrained_model = pickle.load(f)
+                st.session_state.trained_stacks["Pre-trained Voting Classifier"] = pretrained_model
+        except Exception as e:
+            # This handles cases where the file is corrupted
+            st.error(f"Could not load the default model '{model_path}': {e}", icon="🚨")
+
+# Run this only once, if no models are loaded yet
+if not st.session_state.trained_stacks:
+    load_initial_model()
+
 
 def local_css(file_name):
     with open(file_name) as f:
@@ -84,6 +103,8 @@ if __name__ == "__main__":
     if selected_page_by_menu != st.session_state.active_page:
         st.session_state.active_page = selected_page_by_menu
         st.rerun()
+
+
 
     if st.session_state.active_page == "Home":
         home_page()

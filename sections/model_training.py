@@ -68,16 +68,31 @@ def download_model(voting_ensamble):
             with open(file_path, "wb") as f:
                 pickle.dump(voting_ensamble, f)
 
-            with open(file_path, "rb") as f:
-                st.download_button(
-                    label="Click here to download your model",
-                    data=f,
-                    file_name=file_path,
-                    mime="application/octet-stream",
-                    use_container_width=True
-                )
-            if os.path.exists(file_path):
-                os.remove(file_path)
+        with open(file_path, "rb") as f:
+            st.download_button(
+                label="Click here to download your model",
+                data=f,
+                file_name=file_path,
+                mime="application/octet-stream",
+                use_container_width=True
+            )
+    else:
+        st.warning("Please enter a filename before downloading.")
+
+@st.dialog("⚠️ Training Confirmation")
+def warning():
+    st.warning("The training process might take longer than 5 minutes to complete. Do you want to proceed?")
+    
+    dlg_col1, dlg_col2 = st.columns(2)
+    if dlg_col1.button("Continue", use_container_width=True, type="primary"):
+        st.session_state.start_training = True # Set flag to begin training
+        st.session_state.show_confirm_dialog = False # Hide dialog
+        st.rerun()
+
+    if dlg_col2.button("Cancel", use_container_width=True):
+        st.session_state.show_confirm_dialog = False # Just hide dialog
+        st.rerun()
+
 
 def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_text_test):
      # Page Header
@@ -93,8 +108,10 @@ def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_
         """, unsafe_allow_html=True)
 
     # Store all trained models in session
-    if "trained_stacks" not in st.session_state:
-        st.session_state.trained_stacks = {}
+    if "show_confirm_dialog" not in st.session_state:
+        st.session_state.show_confirm_dialog = False
+    if "start_training" not in st.session_state:
+        st.session_state.start_training = False
 
     num_stacks = st.slider(
         label="How Many Stacks Do you want to make? (Odd Number)", 
@@ -131,6 +148,13 @@ def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_
 
     # Train the model
     if st.button("Train All Stacks", use_container_width=True, type='primary'):
+        st.session_state.show_confirm_dialog = True
+        st.rerun()
+
+    if st.session_state.show_confirm_dialog:
+        warning()
+        
+    if st.session_state.start_training:
         progress_bar = st.progress(0, text='Trainning Stack Model(s) in Progress')
         for i in range(num_stacks):
             current_stack_selections = st.session_state.get(f"stack{i}", [])
@@ -205,9 +229,7 @@ def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_
                 "True Label": y_test,
             }
         )
+        st.dataframe(data, use_container_width=True)
 
-        # Apply row-wise styling
-        styled_data = data.style.apply(highlight_wrong, axis=1, subset=['Prediction Label', 'True Label'])
-        st.dataframe(styled_data, use_container_width=True)
+        st.session_state.start_training = False
 
-        download_model(model_download)
