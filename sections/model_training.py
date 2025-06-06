@@ -19,7 +19,6 @@ from sklearn.metrics import classification_report, accuracy_score, ConfusionMatr
 models = {
     'Decision Tree': DecisionTreeClassifier(max_depth=20, random_state=42),
     'Random Forest': RandomForestClassifier(max_depth=20, n_estimators=100),
-    'SVC': SVC(C=10, kernel='rbf', gamma='scale', probability=True),
     'Extra Trees': ExtraTreesClassifier(n_estimators=100),
     'XGBoost': XGBClassifier(use_label_encoder=False, eval_metric='logloss'),
     'BernoulliNB': BernoulliNB(alpha=1e-9),
@@ -110,29 +109,32 @@ def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_
         with st.container(height=500, border=False):
             for num in range(num_stacks):
                 st.header(f"Stack Model {num + 1}")
-                st.multiselect(f"Select Meta Learners", models.keys(), key=f"stack{num}")
+                st.multiselect(f"Select Base Learners", models.keys(), key=f"stack{num}")
 
     with col2:
-        st.header("Meta Learner")
-        st.selectbox(
-            label=f"Select Meta Learners", 
-            options = models.keys(), 
-            key="meta_learner"
-            )
-        st.header("Voting Strategy")
-        vote_strategy = st.selectbox(
-            label="Please choose your voting strategy!",
-            options = ['Hard', 'Soft'],
-            format_func = lambda x : x + "Voting",
-            help = 'Hard Voting is Majority Classification, Soft combines the Probabilities',
-            label_visibility='visible')
+        with st.container(height=500, border=False):
+            for num in range(num_stacks):
+                st.header(f"Meta Learner {num + 1}")
+                st.selectbox (
+                        label=f"Select Meta Learners", 
+                        options = models.keys(), 
+                        key=f"meta_learner{num}"
+                    )
+            
+    st.header("Voting Strategy")
+    vote_strategy = st.selectbox(
+        label="Please choose your voting strategy!",
+        options = ['Hard', 'Soft'],
+        format_func = lambda x : x + " Voting",
+        help = 'Hard Voting is Majority Classification, Soft combines the Probabilities',
+        label_visibility='visible')
 
     # Train the model
     if st.button("Train All Stacks", use_container_width=True, type='primary'):
         progress_bar = st.progress(0, text='Trainning Stack Model(s) in Progress')
         for i in range(num_stacks):
             current_stack_selections = st.session_state.get(f"stack{i}", [])
-            meta_learner = st.session_state.get('meta_learner', '')
+            meta_learner = st.session_state.get(f'meta_learner{i}', '')
 
             if current_stack_selections and meta_learner:                
                 stacks_name = ' '.join(current_stack_selections) + f" + {meta_learner}"
