@@ -14,10 +14,22 @@ def home_page():
         st.markdown("""
         <div class="card">
             <h3 style='color: #2c3e50; margin-bottom: 1rem;'>👋 Welcome to Our Hoax Detection Platform!</h3>
-            <p style='font-size: 1rem;'>
-            This application helps detect <strong style='color: #4b6cb7;'>HOAXES</strong> in Indonesian Social Media text using advanced 
-            <strong style='color: #4b6cb7;'>Stacking & Voting Ensemble Machine Learning</strong> techniques. 
-            Developed as part of our Machine Learning course project under the guidance of Pak Johannes.
+            <p style='font-size: 1.2rem;'>
+                This application is designed to help detect <strong style='color: #4b6cb7;'> HOAXES </strong> in Indonesian social media text using advanced <strong style='color: #4b6cb7;'>Stacking & Voting Ensemble Machine Learning </strong> techniques that enhance classification accuracy through model combination.
+                <br>
+                <br>
+                The project was developed as part of our Final Assignment for the Machine Learning course, under the supervision of Pak Johannes by:
+            </p>
+            <ul style='font-size: 1.2rem;'>
+                <li>Brian Juniarta Darmadi</li>
+                <li>Nur Farhayati</li>
+                <li>Owen Limantoro</li>
+            </ul>
+            <p style='font-size: 1.2rem;'>
+                The driving motivation for this project is to contribute in the prevention of misinformation or disinformation spreading from the internet and especially in family groups. Which can mislead the public, cause confusion, divide communities, and in extreme cases, pose risks to the safety of the . In today’s digital era, anyone can publish and share information instantly, making it increasingly difficult to distinguish between false content.
+                <br>
+                <br>
+                Therefore, we aimed to build a technology-driven tool that can automatically and efficiently verify the authenticity of social media content. By leveraging ensemble learning—specifically stacking and voting strategies—we combine the strengths of multiple machine learning models to produce more accurate and robust predictions.
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -26,7 +38,7 @@ def home_page():
     st.markdown("""
     <div class="card">
         <h3 style='color: #2c3e50; margin-bottom: 1rem;'>🔍 Explore Our Features</h3>
-        <ul style='margin-right:1rem; font-size: 1rem;'>
+        <ul style='margin-right:1rem; font-size: 1.2rem;'>
             <li>
                 Explanatory Dataset
             </li>

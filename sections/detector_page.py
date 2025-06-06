@@ -7,12 +7,11 @@ def detector_page(vectorizer):
     # Check if any models have been trained and stored in session state
     if not st.session_state.get("trained_stacks"):
         st.warning("⚠️ No models have been trained in this session yet. Please go to the 'Model Training & Evaluation' page to train a model first.", icon="🤖")
-        # Optionally, add a button to navigate there directly
+
         if st.button("Go to Model Training"):
             st.session_state.active_page = "Model Training & Evaluation"
             st.rerun()
     else:
-        # --- 1. Model Selection ---
         st.markdown("""
         <div class="card">
             <h3 style='color: #2c3e50;'>Select a Trained Model</h3>
@@ -27,8 +26,6 @@ def detector_page(vectorizer):
         )
         st.markdown("---")
 
-
-        # --- 2. User Input ---
         st.markdown("""
         <div class="card">
             <h3 style='color: #2c3e50;'>Enter Text to Analyze</h3>
@@ -38,24 +35,17 @@ def detector_page(vectorizer):
 
         input_text = st.text_area(
             label="Input Text:",
-            placeholder="Ketik atau tempel teks berita di sini...",
+            placeholder="Write or Paste your news here...",
             height=150
         )
 
-
-        # --- 3. Prediction Button ---
         if st.button("Analyze Text", use_container_width=True, type="primary"):
             if not input_text:
                 st.warning("Please enter some text to analyze.", icon="⚠️")
             elif not selected_model_name:
                 st.warning("Something went wrong, no model appears to be selected.", icon="🤖")
             else:
-                # --- 4. Prediction Logic ---
-                # Retrieve the selected model object
                 model_to_use = st.session_state.trained_stacks[selected_model_name]
-
-                # **CRITICAL STEP**: Preprocess the input text using the SAME vectorizer
-                # The .transform() method expects a list or iterable of documents
                 processed_input = vectorizer.transform([input_text])
 
                 # Make predictions

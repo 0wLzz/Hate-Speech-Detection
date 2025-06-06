@@ -46,6 +46,8 @@ def load():
     x_text_train, x_text_test, y_train, y_test = train_test_split(clean_dataset['text'], clean_dataset['label'], test_size=0.2, stratify=clean_dataset['label'], random_state=0)
 
     x_train = vectorizer.transform(x_text_train)
+    x_train = x_train.toarray()
+
     x_test = vectorizer.transform(x_text_test)
 
     x_train_resampled, y_train_resampled = smote.fit_resample(x_train, y_train)
@@ -76,8 +78,8 @@ if __name__ == "__main__":
         styles = {
             "container": {"padding": "0!important", "background-color": "#f8f9fa"},
             "icon": {"color": "#4b6cb7", "font-size": "14px"},
-            "nav-link": {"font-size": "14px", "text-align": "left", "margin":"0px", "--hover-color": "#e9ecef"},
-            "nav-link-selected": {"background-color": "#4b6cb7"},
+            "nav-link": {"margin":"0px"},
+            "nav-link-selected": {"background-color": "#4b6cb7", "color": "#f8f9fa"},
         }
     )
 

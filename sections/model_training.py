@@ -1,9 +1,9 @@
-import time
+import os
 import pickle
-import numpy as np
-import streamlit as st
 import pandas as pd
+import streamlit as st
 import matplotlib.pyplot as plt
+import numpy as np
 
 from sklearn.ensemble import StackingClassifier, ExtraTreesClassifier, RandomForestClassifier, VotingClassifier
 from sklearn.linear_model import LogisticRegression, RidgeClassifier, PassiveAggressiveClassifier
@@ -13,13 +13,13 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
 
-from sklearn.metrics import classification_report, confusion_matrix, accuracy_score, ConfusionMatrixDisplay
+from sklearn.metrics import classification_report, accuracy_score, ConfusionMatrixDisplay
 
 # Load Model
 models = {
     'Decision Tree': DecisionTreeClassifier(max_depth=20, random_state=42),
     'Random Forest': RandomForestClassifier(max_depth=20, n_estimators=100),
-    'SVC': SVC(C=10, kernel='rbf'),
+    'SVC': SVC(C=10, kernel='rbf', gamma='scale', probability=True),
     'Extra Trees': ExtraTreesClassifier(n_estimators=100),
     'XGBoost': XGBClassifier(use_label_encoder=False, eval_metric='logloss'),
     'BernoulliNB': BernoulliNB(alpha=1e-9),
@@ -43,33 +43,42 @@ def train_stack_model(stacks, base, x_train_resampled, y_train_resampled):
 
     return stack_model
 
+def highlight_wrong(row):
+    return [
+        "background-color: lightcoral" if row["Prediction Label"] != row["True Label"] else ""
+        for _ in row
+    ]
+
 @st.fragment()
 def download_model(voting_ensamble):
     filename = st.text_input(
         label="What do you want to save it as?",
         max_chars=255,
         placeholder="Filename",
-        key="model_filename"
+        key="model_filename",
+        value=None
     ) 
 
-    if st.button("Download Model", use_container_width=True, type='primary') and filename:
-        model_download = voting_ensamble
-        
-        file_path = f"{filename}.pkl"
-        with open(file_path, "wb") as f:
-            pickle.dump(model_download, f)
+    download_clicked = st.button("Download Model", use_container_width=True, type='primary')
 
-        with open(file_path, "rb") as f:
-            st.download_button(
-                label="Click here to download your model",
-                data=f,
-                file_name=file_path,
-                mime="application/octet-stream",
-                use_container_width=True
-            )
-    else:
-        st.warning("Please enter a filename before downloading.")
+    if download_clicked:
+        if not filename or filename.strip() == "":
+            st.warning("❗ Please enter a filename before downloading.")
+        else :            
+            file_path = f"{filename}.pkl"
+            with open(file_path, "wb") as f:
+                pickle.dump(voting_ensamble, f)
 
+            with open(file_path, "rb") as f:
+                st.download_button(
+                    label="Click here to download your model",
+                    data=f,
+                    file_name=file_path,
+                    mime="application/octet-stream",
+                    use_container_width=True
+                )
+            if os.path.exists(file_path):
+                os.remove(file_path)
 
 def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_text_test):
      # Page Header
@@ -126,11 +135,11 @@ def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_
             meta_learner = st.session_state.get('meta_learner', '')
 
             if current_stack_selections and meta_learner:                
-                time.sleep(0.2)
+                stacks_name = ' '.join(current_stack_selections) + f" + {meta_learner}"
 
-                st.markdown(f"Training Stack {i+1} with models: {', '.join(current_stack_selections)}")
+                st.markdown(f"Training Stack {i+1} with models: {stacks_name}")
                 trained_model = train_stack_model(current_stack_selections, meta_learner, x_train_resampled, y_train_resampled)
-                st.session_state.trained_stacks[f"stack_model_{i+1}"] = trained_model
+                st.session_state.trained_stacks[stacks_name] = trained_model
 
                 st.success(f"✅ Stack{i + 1} trained")   
                 progress_bar.progress((i + 1) / num_stacks)
@@ -141,7 +150,7 @@ def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_
         stack_models = st.session_state.trained_stacks
         if len(stack_models) > 2:
             st.subheader("Training Final Voting Classifier...")
-            stack_models = list(stack_models.item())
+            stack_models = list(stack_models.items())
 
             voting_ensemble = VotingClassifier(estimators=stack_models, voting=vote_strategy.lower(), n_jobs=-1)
             voting_ensemble.fit(x_train_resampled, y_train_resampled)
@@ -149,8 +158,8 @@ def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_
 
             model_download = voting_ensemble
         else:
-            y_pred = stack_models["stack_model_1"].predict(x_test)
-            model_download = stack_models["stack_model_1"]
+            y_pred = stack_models[stacks_name].predict(x_test)
+            model_download = stack_models[stacks_name]
 
         col1, col2 = st.columns(2)
         with col1 :
@@ -186,15 +195,17 @@ def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_
             with col3:
                 st.metric("Recall (Hoax)", f"{report['1']['recall'] * 100:.2f}%", delta="10%", border=True)
 
-            download_model(model_download)
-
         st.markdown("#### 📊 Evaluation True & Prediction")
         data = pd.DataFrame(
             {
-                "Text" : x_text_test,
-                "Prediction Label" : y_pred,
-                "True Label" : y_test,
+                "Text": x_text_test,
+                "Prediction Label": y_pred,
+                "True Label": y_test,
             }
         )
-        st.dataframe(data, use_container_width=True)
 
+        # Apply row-wise styling
+        styled_data = data.style.apply(highlight_wrong, axis=1, subset=['Prediction Label', 'True Label'])
+        st.dataframe(styled_data, use_container_width=True)
+
+        download_model(model_download)
