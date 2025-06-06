@@ -70,6 +70,20 @@ def download_model(voting_ensamble):
     else:
         st.warning("Please enter a filename before downloading.")
 
+@st.dialog("⚠️ Training Confirmation")
+def warning():
+    st.warning("The training process might take longer than 5 minutes to complete. Do you want to proceed?")
+    
+    dlg_col1, dlg_col2 = st.columns(2)
+    if dlg_col1.button("Continue", use_container_width=True, type="primary"):
+        st.session_state.start_training = True # Set flag to begin training
+        st.session_state.show_confirm_dialog = False # Hide dialog
+        st.rerun()
+
+    if dlg_col2.button("Cancel", use_container_width=True):
+        st.session_state.show_confirm_dialog = False # Just hide dialog
+        st.rerun()
+
 
 def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_text_test):
      # Page Header
@@ -85,8 +99,10 @@ def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_
         """, unsafe_allow_html=True)
 
     # Store all trained models in session
-    if "trained_stacks" not in st.session_state:
-        st.session_state.trained_stacks = {}
+    if "show_confirm_dialog" not in st.session_state:
+        st.session_state.show_confirm_dialog = False
+    if "start_training" not in st.session_state:
+        st.session_state.start_training = False
 
     num_stacks = st.slider(
         label="How Many Stacks Do you want to make? (Odd Number)", 
@@ -120,6 +136,13 @@ def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_
 
     # Train the model
     if st.button("Train All Stacks", use_container_width=True, type='primary'):
+        st.session_state.show_confirm_dialog = True
+        st.rerun()
+
+    if st.session_state.show_confirm_dialog:
+        warning()
+        
+    if st.session_state.start_training:
         progress_bar = st.progress(0, text='Trainning Stack Model(s) in Progress')
         for i in range(num_stacks):
             current_stack_selections = st.session_state.get(f"stack{i}", [])
@@ -141,7 +164,7 @@ def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_
         stack_models = st.session_state.trained_stacks
         if len(stack_models) > 2:
             st.subheader("Training Final Voting Classifier...")
-            stack_models = list(stack_models.item())
+            stack_models = list(stack_models.items())
 
             voting_ensemble = VotingClassifier(estimators=stack_models, voting=vote_strategy.lower(), n_jobs=-1)
             voting_ensemble.fit(x_train_resampled, y_train_resampled)
@@ -197,4 +220,6 @@ def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_
             }
         )
         st.dataframe(data, use_container_width=True)
+
+        st.session_state.start_training = False
 
