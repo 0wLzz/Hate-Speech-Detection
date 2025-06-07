@@ -32,7 +32,7 @@ def eda_page(raw_dataset, clean_dataset):
             ">
                 <h3 style="color: #2c3e50; margin-bottom: 10px;">📄 Data Explanation</h3>
                 <p style="color: #333; font-size: 15px; line-height: 1.6;">
-                    This dataset, sourced from <strong>Hugging Face Datasets</strong>, comprises a collection of <strong>4,209 news articles</strong> in Bahasa Indonesia. Each article has been labeled as either <span style="color: red;"><strong>"Fake" (Hoax)</strong></span> or <span style="color: green;"><strong>"Non Fake" (Real News)</strong></span>.
+                    This dataset, sourced from <strong>IPB Satria Data Challange</strong>, comprises a collection of <strong>4,209 news articles</strong> in Bahasa Indonesia. Each article has been labeled as either <span style="color: red;"><strong>"Fake" (Hoax)</strong></span> or <span style="color: green;"><strong>"Non Fake" (Real News)</strong></span>.
                 </p>
                 <p style="color: #333; font-size: 15px; line-height: 1.6;">
                     A key characteristic of this dataset is its <strong>imbalanced class distribution</strong>, which reflects a real-world challenge for classification models:
@@ -52,7 +52,7 @@ def eda_page(raw_dataset, clean_dataset):
                     <li><strong>Nama File Gambar</strong>: Filename of any associated image.</li>
                 </ul>
                 <h3 style='color: #2c3e50; margin-top: 1rem;'>Dataset Source:</h3>
-                <p>This app uses a dataset from <a href="https://www.kaggle.com/datasets/muhammadghazimuharam/indonesiafalsenews">Kaggle</a></p> 
+                <p>This app uses a dataset from <a href="https://www.kaggle.com/datasets/muhammadghazimuharam/indonesiafalsenews">HERE</a></p> 
             </div>
             """, unsafe_allow_html=True)
 
@@ -115,12 +115,11 @@ def eda_page(raw_dataset, clean_dataset):
             "code": "text = text.lower()",
         },
         {
-            "title": "2. Remove Punctuation",
+            "title": "2. Remove Non AlphaNumerical",
             "icon": "❌",
             "explanation": "Removes punctuation like commas, periods, and other special characters.",
             "code": """
-                import string
-                text = text.translate(str.maketrans('', '', string.punctuation))
+                clean = [word for word in clean if word.isalpha()]
             """
         },
         {
@@ -128,9 +127,10 @@ def eda_page(raw_dataset, clean_dataset):
             "icon": "🚫",
             "explanation": "Removes commonly used words that do not carry significant meaning, like 'dan', 'yang', etc.",
             "code": """
-                from nltk.corpus import stopwords
-                stop_words = set(stopwords.words('indonesian'))
-                text = ' '.join([word for word in text.split() if word not in stop_words])
+                from Sastrawi.StopWordRemover.StopWordRemoverFactory import StopWordRemoverFactory
+                rm_factory = StopWordRemoverFactory()
+                stopword = rm_factory.create_stop_word_remover()
+                text = stopword.remove(text)
             """
         },
         {
@@ -172,6 +172,9 @@ def eda_page(raw_dataset, clean_dataset):
     <div class="card" style="padding-top:0.2rem">
         <h3 style="color: #2c3e50; margin-top: 1.5rem;">⚖️ Handling Imbalanced Dataset with SMOTE</h3>
         <p style="color: #666; font-size: 1rem; line-height: 1.6;">
+        <div style='text-align: center; margin: 1rem 0; min-height:51vh; flex-direction:flex; align-item:center'>
+            <img src='https://www.researchgate.net/publication/347937180/figure/fig3/AS:973429209563136@1609095017080/llustration-of-the-SMOTE-oversampling-approach.ppm' style='max-width: 100%; border-radius: 8px;' alt='Stacking diagram'>
+        </div>
             The dataset is highly imbalanced, with many more <strong>hoax</strong> than <strong>non-hoax</strong> examples. This imbalance can bias the model toward the majority class, leading to poor performance on underrepresented cases.
             To address this, we use <strong>SMOTE (Synthetic Minority Over-sampling Technique)</strong>, which:
         </p>

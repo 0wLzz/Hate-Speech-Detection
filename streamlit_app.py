@@ -4,7 +4,6 @@ import os
 import pandas as pd
 import streamlit as st
 
-
 # Preprocessing & Metrics
 from imblearn.over_sampling import SMOTE
 from sklearn.model_selection import train_test_split
@@ -31,7 +30,6 @@ if 'active_page' not in st.session_state:
 if "trained_stacks" not in st.session_state:
     st.session_state.trained_stacks = {}
 
-
 def load_initial_model():
     model_path = "voting_classifier.pkl"
     if os.path.exists(model_path):
@@ -40,7 +38,6 @@ def load_initial_model():
                 pretrained_model = pickle.load(f)
                 st.session_state.trained_stacks["Pre-trained Voting Classifier"] = pretrained_model
         except Exception as e:
-            # This handles cases where the file is corrupted
             st.error(f"Could not load the default model '{model_path}': {e}", icon="🚨")
 
 # Run this only once, if no models are loaded yet
@@ -103,8 +100,6 @@ if __name__ == "__main__":
     if selected_page_by_menu != st.session_state.active_page:
         st.session_state.active_page = selected_page_by_menu
         st.rerun()
-
-
 
     if st.session_state.active_page == "Home":
         home_page()
