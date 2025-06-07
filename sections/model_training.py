@@ -103,7 +103,7 @@ def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_
         st.markdown("""
         <div class="card">
             <h3 style='color: #2c3e50;'>Build Your Ensemble Model</h3>
-            <p>Select base models and voting strategy to evaluate performance.</p>
+            <p>Welcom to the DIY page, here you are able to select the stack combination and compare them to the other stack that had been trained. You are able to freely choose and when the trainning is done, you are able to test it in the Hoax Detector page! Hope you like it!</p>
         </div>
         """, unsafe_allow_html=True)
 

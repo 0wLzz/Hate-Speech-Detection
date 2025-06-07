@@ -74,3 +74,72 @@ def model_explanation_page():
             </p>
         </div>
         """, unsafe_allow_html=True)
+    
+    with st.container():
+        st.markdown("""
+        <div class="card">
+            <h3 style='color: #2c3e50;'>Proposed Method</h3>
+            <p>
+                In the proposed method, we implemented a combination of ensemble learning techniques: 
+                <strong>Stacking</strong> and <strong>Voting</strong>. Stacking involves training multiple 
+                base learners and combining their predictions through a meta-learner. This approach 
+                aims to improve generalization performance by leveraging the strengths of different models. 
+                Meanwhile, the Voting mechanism helps aggregate predictions either by majority (for classification) 
+                or averaging (for regression) from multiple models to enhance robustness.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
+            <div class="card">
+                <h3 style='color: #2c3e50;'>How Voting Works</h3>
+            </div>
+            """, unsafe_allow_html=True)
+
+        st.image("Stacking + Voting.jpg", use_container_width =True, caption="Diagram showing the voting ensemble workflow with base models and voting output")
+
+        st.markdown("""
+        <div class="card">
+            <h3 style='color: #2c3e50;'>Stacking Combinations Used</h3>
+            <p>
+                Below are the stacking combinations used in our model training process. All stacking configurations used 
+                <strong>Logistic Regression</strong> as the meta-learner.
+            </p>
+            <table style="width:100%; border-collapse: collapse; font-size: 0.9rem;">
+                <thead>
+                    <tr style="background-color: #ecf0f1; text-align: left;">
+                        <th style="padding: 8px; border: 1px solid #bdc3c7;">Stack</th>
+                        <th style="padding: 8px; border: 1px solid #bdc3c7;">Base Learners</th>
+                        <th style="padding: 8px; border: 1px solid #bdc3c7;">Meta-Learner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #bdc3c7;">1</td>
+                        <td style="padding: 8px; border: 1px solid #bdc3c7;">Random Forest, KNN, Decision Tree</td>
+                        <td style="padding: 8px; border: 1px solid #bdc3c7;">Logistic Regression</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #bdc3c7;">2</td>
+                        <td style="padding: 8px; border: 1px solid #bdc3c7;">XGBoost, Extra Trees, Random Forest</td>
+                        <td style="padding: 8px; border: 1px solid #bdc3c7;">Logistic Regression</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #bdc3c7;">3</td>
+                        <td style="padding: 8px; border: 1px solid #bdc3c7;">BernoulliNB, Ridge, Random Forest</td>
+                        <td style="padding: 8px; border: 1px solid #bdc3c7;">Logistic Regression</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #bdc3c7;">4</td>
+                        <td style="padding: 8px; border: 1px solid #bdc3c7;">Logistic Regression, Ridge, PassiveAggressive</td>
+                        <td style="padding: 8px; border: 1px solid #bdc3c7;">Logistic Regression</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #bdc3c7;">5</td>
+                        <td style="padding: 8px; border: 1px solid #bdc3c7;">KNN, Decision Tree, BernoulliNB</td>
+                        <td style="padding: 8px; border: 1px solid #bdc3c7;">Logistic Regression</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        """, unsafe_allow_html=True)
