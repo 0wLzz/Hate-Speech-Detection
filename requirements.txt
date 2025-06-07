@@ -5,3 +5,5 @@ pandas
 sckit-learn
 xgboost
 imblearn
+pickle
+matplotlib
