@@ -2,7 +2,7 @@ streamlit
 streamlit_option_menu
 numpy
 pandas
-sckit-learn
+scikit-learn
 xgboost
 imblearn
 pickle
