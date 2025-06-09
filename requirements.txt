@@ -1,8 +1,8 @@
-streamlit
-streamlit_option_menu
-numpy
-pandas
-scikit-learn
-imbalanced-learn
-xgboost
-matplotlib
+streamlit==1.45.1
+streamlit_option_menu==0.4.0
+numpy==2.2.2
+pandas==2.2.3
+scikit-learn==1.6.1
+imbalanced-learn==0.13.0
+xgboost==2.1.4
+matplotlib==3.10.0
