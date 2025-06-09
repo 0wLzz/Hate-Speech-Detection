@@ -137,14 +137,15 @@ def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_
                         options = models.keys(), 
                         key=f"meta_learner{num}"
                     )
-            
-    st.header("Voting Strategy")
-    vote_strategy = st.selectbox(
-        label="Please choose your voting strategy!",
-        options = ['Hard', 'Soft'],
-        format_func = lambda x : x + " Voting",
-        help = 'Hard Voting is Majority Classification, Soft combines the Probabilities',
-        label_visibility='visible')
+    
+    if num_stacks > 1 :
+        st.header("Voting Strategy")
+        vote_strategy = st.selectbox(
+            label="Please choose your voting strategy!",
+            options = ['Hard', 'Soft'],
+            format_func = lambda x : x + " Voting",
+            help = 'Hard Voting is Majority Classification, Soft combines the Probabilities',
+            label_visibility='visible')
 
     # Train the model
     if st.button("Train All Stacks", use_container_width=True, type='primary'):
@@ -215,13 +216,20 @@ def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_
             
             col1, col2, col3 = st.columns(3)
             with col1:
-                st.metric("F1-Score (Hoax)", f"{report['1']['f1-score'] * 100:.2f}%", delta="10%", border=True)
+                f1_default_model = 0.91
+                diff_f1 = report['1']['f1-score'] - f1_default_model
+                st.metric("F1-Score (Hoax)", f"{report['1']['f1-score'] * 100:.2f}%", delta=f"{diff_f1:.2f}%", border=True)
             with col2:
-                st.metric("Precision (Hoax)", f"{report['1']['precision'] * 100:.2f}%", delta="10%", border=True)
+                precision_default_model = 0.85
+                diff_precision = report['1']['precision'] - precision_default_model
+                st.metric("Precision (Hoax)", f"{report['1']['precision'] * 100:.2f}%", delta=f"{diff_precision:.2f}%", border=True)
             with col3:
-                st.metric("Recall (Hoax)", f"{report['1']['recall'] * 100:.2f}%", delta="10%", border=True)
+                recall_default_model = 0.98
+                diff_recall = report['1']['recall'] - recall_default_model
+                st.metric("Recall (Hoax)", f"{report['1']['recall'] * 100:.2f}%", delta=f"{diff_recall:.2f}%", border=True)
 
         st.markdown("#### 📊 Evaluation True & Prediction")
+
         data = pd.DataFrame(
             {
                 "Text": x_text_test,
@@ -229,6 +237,13 @@ def model_training_page(x_train_resampled, y_train_resampled, x_test, y_test, x_
                 "True Label": y_test,
             }
         )
+        
+        def highlight_mismatch(row):
+            return ['background-color: #ffcccc'] * len(row) if row['Prediction Label'] != row['True Label'] else [''] * len(row)
+
+        # Apply styling
+        data = data.style.apply(highlight_mismatch, axis=1)
+
         st.dataframe(data, use_container_width=True)
 
         st.session_state.start_training = False
