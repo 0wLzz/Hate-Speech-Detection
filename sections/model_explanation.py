@@ -96,7 +96,7 @@ def model_explanation_page():
             </div>
             """, unsafe_allow_html=True)
 
-        st.image("Stacking + Voting.jpg", use_container_width =True, caption="Diagram showing the voting ensemble workflow with base models and voting output")
+        st.image("Stacking+Voting.jpg", use_container_width =True, caption="Diagram showing the voting ensemble workflow with base models and voting output")
 
         st.markdown("""
         <div class="card">
