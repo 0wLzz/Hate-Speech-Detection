@@ -17,28 +17,34 @@ The dataset was atteind from here: [False News Dataset](https://www.kaggle.com/d
 
 ## ⚙️ Installation & Setup
 
-🐍 Requires **Python 3.12**  
-We strongly recommend using a virtual environment
+> 🐍 Requires **Python 3.12**
+> We strongly recommend using a virtual environment
 
 1. **Clone the repo**
 
    ```bash
    git clone https://github.com/0wLzz/Hoax-News-Detection.git
    cd Hoax-News-Detection
-
    ```
 
 2. **Create & Activate the virtual environment**
 
+   > Using Python Virtual Environment
+
    ```bash
-    python3.12 -m venv FakeNews
+   py -3.12 -m venv FakeNews
+   # Windows
+   FakeNews\Scripts\activate
 
-    # Windows
-    venv\Scripts\activate
+   # Mac/Linux
+   source FakeNews/bin/activate
+   ```
 
-    # Mac/Linux
-    source venv/bin/activate
+   > or with a Conda Environment
 
+   ```bash
+    conda create -n FakeNews python=3.12
+    conda activate FakeNews
    ```
 
 3. **Install dependencies**
